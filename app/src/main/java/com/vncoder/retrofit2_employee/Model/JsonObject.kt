@@ -1,4 +1,4 @@
-package com.vncoder.retrofit2_employee.entity
+package com.vncoder.retrofit2_employee.Model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName

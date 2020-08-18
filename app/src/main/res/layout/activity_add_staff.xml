@@ -10,15 +10,26 @@
     tools:context=".AddStaff">
 
 
+    <EditText
+        android:inputType="number"
+        android:hint="ID"
+        android:layout_marginTop="100dp"
+        app:layout_constraintBottom_toTopOf="@+id/edt_nameEmployee"
+        android:id="@+id/edt_idEmployee"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <EditText
+        android:layout_marginTop="20dp"
         android:hint="Name"
-        android:layout_marginTop="100dp"
         app:layout_constraintBottom_toTopOf="@+id/edt_ageEmployee"
         android:id="@+id/edt_nameEmployee"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edt_idEmployee"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <EditText

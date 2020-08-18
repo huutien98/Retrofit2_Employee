@@ -1,4 +1,4 @@
-package com.vncoder.retrofit2_employee.entity
+package com.vncoder.retrofit2_employee.Model
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -22,6 +22,7 @@ class Employee : Serializable {
     var employee_age :Int? = null
 
     @SerializedName("profile_image")
+
     @Expose
     var profile_image: String?= null
 }

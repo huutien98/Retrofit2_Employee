@@ -1,9 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_margin="20dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context=".DetailStaff">
+
+
+    <TextView
+        android:gravity="center"
+        android:hint="ID"
+        android:layout_marginTop="100dp"
+        app:layout_constraintBottom_toTopOf="@+id/detail_nameEmployee"
+        android:id="@+id/detail_idEmployee"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:layout_marginTop="20dp"
+        android:hint="Name"
+        app:layout_constraintBottom_toTopOf="@+id/detail_ageEmployee"
+        android:id="@+id/detail_nameEmployee"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/detail_idEmployee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <EditText
+        android:inputType="number"
+        android:hint="Age"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/detail_salaryEmployee"
+        android:id="@+id/detail_ageEmployee"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/detail_nameEmployee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <EditText
+        android:inputType="number|numberDecimal"
+        android:hint="Salary"
+        android:layout_marginTop="20dp"
+        android:id="@+id/detail_salaryEmployee"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/detail_ageEmployee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/detail_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/detail_salaryEmployee" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
