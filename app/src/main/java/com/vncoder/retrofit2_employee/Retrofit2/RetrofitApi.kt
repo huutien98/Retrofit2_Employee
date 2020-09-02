@@ -1,39 +1,26 @@
 package com.vncoder.retrofit2_employee.Retrofit2
 
-import com.vncoder.retrofit2_employee.Model.Employee
-import com.vncoder.retrofit2_employee.Model.JsonObject
-import okhttp3.ResponseBody
+import com.vncoder.retrofit2_employee.Model.*
 import retrofit2.Call
 import retrofit2.http.*
 
 
 interface RetrofitApi {
-    @Headers(
-        value = ["Accept: application/json",
-            "Content-type:application/json"]
-    )
+    @GET("contacts/bookmark")
+    fun getdata(): Call<JsonObject>
 
-    @GET("employees/")
-    fun getJsonObject(): Call<JsonObject>
+    @POST("contact")
+    fun postContact(
+    @Body
+    ContacCreate : ContactCreate
+    ): Call<ContactCreate>
 
-    @POST("create/")
-    @FormUrlEncoded
-    fun postEmployee(
-        @Field("name") name: String,
-        @Field("salary") salary: Int?,
-        @Field("age") age: Int?,
-        @Field("id") id: Int?
-    ): Call<JsonObject>
+    @DELETE("contact/{contact_id}")
+    fun deleteContact(
+        @Path("contact_id") contact_id: String
+    ): Call<Contact>
 
-    @DELETE("delete/{id}")
-    open fun deleteBook(
-        @Path("id") id: Int
-    ): Call<Employee>
 
-    @PUT("update/{id}")
-    open fun updateUser(
-        @Path("id") id: Int,
-        @Body body: Employee?
-    ): Call<Employee>
 
 }
+

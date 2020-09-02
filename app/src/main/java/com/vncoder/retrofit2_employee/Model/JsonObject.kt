@@ -4,19 +4,13 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-class JsonObject : Serializable{
-    @SerializedName("status")
+class JsonObject :Serializable{
+    @SerializedName("contacts")
     @Expose
-    val status: String? = null
+    var contacts : List<Contact>? = null
 
-    @SerializedName("data")
+    @SerializedName("total_contacts")
     @Expose
-    var data: List<Employee>? = null
+    var total_contacts : String? = null
 
-    @SerializedName("message")
-    @Expose
-    var message: String?= null
 }
-
-
-

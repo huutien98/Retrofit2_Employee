@@ -2,96 +2,77 @@ package com.vncoder.retrofit2_employee
 
 import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.vncoder.retrofit2_employee.Adapter.EmployeeAdapter
-import com.vncoder.retrofit2_employee.Retrofit2.RetrofitClient
-import com.vncoder.retrofit2_employee.Model.Employee
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.vncoder.retrofit2_employee.Adapter.ContactAdapter
+import com.vncoder.retrofit2_employee.Model.Contact
 import com.vncoder.retrofit2_employee.Model.JsonObject
+import com.vncoder.retrofit2_employee.Retrofit2.RetrofitClient
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.Call
 import retrofit2.Response
 
-class ListStaff : AppCompatActivity() {
-    private val ActivityRequestDetail = 2
-    private val ActivityRequestCode = 1
 
-    private var list = ArrayList<Employee>()
-    private var jsonObject : JsonObject? = null
+class ListStaff : AppCompatActivity() {
+    private val ActivityRequestCode2 = 2
+    private var list = ArrayList<Contact>()
+    private lateinit var contactAdapter: ContactAdapter
+    private lateinit var rv_RecyclerView: RecyclerView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        var rv_RecyclerView = findViewById<RecyclerView>(R.id.rv_recyclerView)
+        rv_RecyclerView = findViewById<RecyclerView>(R.id.rv_recyclerView)
+        var sw_refresh = findViewById<SwipeRefreshLayout>(R.id.sw_refresh)
 
-        rv_RecyclerView.setHasFixedSize(true)
         rv_RecyclerView.layoutManager = LinearLayoutManager(this)
+        rv_RecyclerView.setHasFixedSize(true)
+        rv_RecyclerView.itemAnimator = SlideInLeftAnimator()
+        contactAdapter = ContactAdapter(onClickListener, list)
+        rv_RecyclerView.adapter = contactAdapter
 
-        RetrofitClient.instance.getJsonObject().enqueue(object : retrofit2.Callback<JsonObject> {
-            override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
-                Toast.makeText(this@ListStaff,"onFailure",Toast.LENGTH_LONG).show()
-            }
-
-            override fun onResponse(call: Call<JsonObject>?, response: Response<JsonObject>) {
-                jsonObject = response.body()
-                if (response.isSuccessful) {
-                    list = jsonObject?.data as ArrayList<Employee>
-                    rv_RecyclerView.adapter = EmployeeAdapter(onClickListener,list)
-
-                } else {
-                    Toast.makeText(
-                        applicationContext,
-                        "not data " + response.code().toString(),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-            }
-
-        })
-        sw_refresh.setOnRefreshListener {getData()
+        sw_refresh.setOnRefreshListener {
+            contactAdapter.notifyDataSetChanged()
             sw_refresh.isRefreshing = false
         }
 
         btn_addStaff.setOnClickListener {
-            var intent = Intent(this,AddStaff::class.java)
-            startActivityForResult(intent,ActivityRequestCode)
+            var intent = Intent(this, AddStaff::class.java)
+            startActivity(intent)
         }
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == ActivityRequestCode && resultCode == Activity.RESULT_OK) {
-            getData()
-            Toast.makeText(this,"data update sucess",Toast.LENGTH_LONG).show()
-        }else{
-            Toast.makeText(this,"No new data available",Toast.LENGTH_LONG).show()
+        if (requestCode == ActivityRequestCode2 && resultCode == Activity.RESULT_OK) {
+//            getData()
+            Toast.makeText(this, "update success", Toast.LENGTH_LONG).show()
+        } else {
+//            Toast.makeText(this, "not update", Toast.LENGTH_LONG).show()
         }
-
-
     }
 
-
-
-    fun getData(){
-        RetrofitClient.instance.getJsonObject().enqueue(object : retrofit2.Callback<JsonObject> {
-            override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
-                Toast.makeText(this@ListStaff,"onFailure",Toast.LENGTH_LONG).show()
-            }
-
-            override fun onResponse(call: Call<JsonObject>?, response: Response<JsonObject>) {
-                jsonObject = response.body()
-                if (response.isSuccessful) {
-                    Toast.makeText(
-                        applicationContext,
-                        " data show " + response.code().toString(),
-                        Toast.LENGTH_SHORT
-                    ).show()
+    fun getData() {
+        RetrofitClient.instance.getdata().enqueue(object : retrofit2.Callback<JsonObject> {
+            override fun onResponse(call: Call<JsonObject>?, response: Response<JsonObject>?) {
+                shimmer.startShimmer()
+                if (response!!.isSuccessful) {
+                    contactAdapter.notifyDataSetChanged()
+                    list = response.body().contacts as ArrayList<Contact>
+                    contactAdapter.exampleList = list
+                    rv_RecyclerView.setHasFixedSize(true)
 
                 } else {
                     Toast.makeText(
@@ -100,47 +81,119 @@ class ListStaff : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+                shimmer.stopShimmer()
+                shimmer.visibility = View.GONE
+            }
+
+            override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
+                Toast.makeText(this@ListStaff, "onFailure", Toast.LENGTH_LONG).show()
             }
         })
-        sw_refresh.isRefreshing = false
+        contactAdapter.notifyDataSetChanged()
     }
 
+    private var onClickListener = object : ContactAdapter.OnItemClickListener {
+        override fun onClickEmployee(contact: Contact) {
 
-    private var onClickListener = object : EmployeeAdapter.OnItemClickListener{
-        override fun onClickEmployee(employee: Employee) {
-            val replyintent = Intent(this@ListStaff,DetailStaff::class.java)
-            replyintent.putExtra("deatilEmployee",employee)
-            startActivity(replyintent)
+            val replyintent = Intent(this@ListStaff, DetailStaff::class.java)
+            val bundle = Bundle()
+            bundle.putSerializable("detailEmployee", contact)
+            replyintent.putExtras(bundle)
+            startActivityForResult(replyintent, ActivityRequestCode2)
         }
 
-        override fun onLongClickEmployee(employee: Employee) {
+        override fun onLongClickEmployee(contact: Contact) {
             val builder = androidx.appcompat.app.AlertDialog.Builder(this@ListStaff)
             builder.setTitle("notification")
-            builder.setMessage("Do you want delete all item ?")
+            builder.setMessage("Do you want delete item ?")
             builder.setCancelable(false)
             builder.setPositiveButton("Yes")
             { dialogInterface, i ->
-                RetrofitClient.instance.deleteBook(employee.id!!.toInt())?.enqueue(object : retrofit2.Callback<Employee> {
-                    override fun onFailure(call: Call<Employee>?, t: Throwable?) {
-                         Toast.makeText(this@ListStaff,"fail",Toast.LENGTH_LONG).show()
-                    }
 
-                    override fun onResponse(call: Call<Employee>?, response: Response<Employee>) {
-                        Toast.makeText(this@ListStaff,"success",Toast.LENGTH_LONG).show()
+                RetrofitClient.instance.deleteContact(contact.contact_id.toString()).enqueue(object :
+                    retrofit2.Callback<Contact> {
+                    override fun onResponse(call: Call<Contact>?, response: Response<Contact>?) {
+                        if (response!!.isSuccessful) {
+                            Log.d("error1", response.code().toString())
+//                            contactAdapter.notifyDataSetChanged()
+//                            rv_RecyclerView.itemAnimator = SlideInLeftAnimator()
+                            getData()
+                        } else {
+                            Log.d("error2", response.code().toString())
+                        }
+                    }
+                    override fun onFailure(call: Call<Contact>?, t: Throwable?) {
+                        Toast.makeText(this@ListStaff, "delete Fail", Toast.LENGTH_LONG).show()
                     }
                 })
-
-                }
+            }
             builder.setNegativeButton("No")
-            { dialogInterface, i -> dialogInterface.dismiss()
+            { dialogInterface, i ->
+                dialogInterface.dismiss()
             }
             val alertDialog = builder.create()
             alertDialog.show()
         }
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        var menuItem: MenuItem? = menu?.findItem(R.id.action_search)
+
+        var searchView: SearchView = menuItem?.actionView as SearchView
+        searchView.queryHint = "input text"
+        searchView.imeOptions = EditorInfo.IME_ACTION_DONE
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                var listResult = if (query!!.isEmpty()) {
+                    list
+                } else {
+                    contactAdapter.exampleList.filter {
+                        it.Name?.toLowerCase()!!.contains(query.toString())
+                    }
+                }
+                contactAdapter.exampleList = listResult as ArrayList<Contact>
+                contactAdapter.notifyDataSetChanged()
+                return false
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                var listResult = if (newText!!.isEmpty()) {
+                    list
+                } else {
+                    contactAdapter.exampleList.filter {
+                        it.FirstName?.toLowerCase()!!.contains(
+                            newText.toString()
+                        )
+                    }
+                }
+                contactAdapter.exampleList = listResult as ArrayList<Contact>
+                contactAdapter.notifyDataSetChanged()
+
+                return false
+            }
+        })
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        return when (id) {
+            R.id.action_sort -> {
+                list.sortBy { it.Email }
+                contactAdapter.notifyDataSetChanged()
+                 true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 
 
-
+    override fun onResume() {
+        shimmer.startShimmer()
+        getData()
+        shimmer.stopShimmer()
+        super.onResume()
+    }
 }
